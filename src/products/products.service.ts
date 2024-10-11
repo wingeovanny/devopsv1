@@ -1,47 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Product } from './entities/product.entity';
+import { Injectable } from '@nestjs/common';
+import { ProductsRepository } from './products.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
-  private products: Product[] = [];
-  private currentId = 1;
+  constructor(private productsRepository: ProductsRepository) {}
 
   create(createProductDto: CreateProductDto): Product {
-    const newProduct: Product = {
-      id: this.currentId++,
-      ...createProductDto,
-    };
-    this.products.push(newProduct);
-    return newProduct;
+    return this.productsRepository.create(createProductDto);
   }
 
   findAll(): Product[] {
-    return this.products;
+    return this.productsRepository.findAll();
   }
 
   findOne(id: number): Product {
-    const product = this.products.find((p) => p.id === id);
-    if (!product) {
-      throw new NotFoundException(`Product with id ${id} not found`);
-    }
-    return product;
+    return this.productsRepository.findOne(id);
   }
 
   update(id: number, updateProductDto: UpdateProductDto): Product {
-    const product = this.findOne(id);
-    const updatedProduct = { ...product, ...updateProductDto };
-    const index = this.products.findIndex((p) => p.id === id);
-    this.products[index] = updatedProduct;
-    return updatedProduct;
+    return this.productsRepository.update(id, updateProductDto);
   }
 
   remove(id: number): void {
-    const index = this.products.findIndex((p) => p.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Product with id ${id} not found`);
-    }
-    this.products.splice(index, 1);
+    return this.productsRepository.remove(id);
   }
 }
